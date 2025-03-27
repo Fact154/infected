@@ -10,12 +10,12 @@ class Deck {
     int thingCount = 1, // "Нечто"
     int flamethrowerCount = 5,
     int analysisCount = 1,
-    int axeCount = 2,
-    int quarantineCount = 1,
+    int axeCount = 1,
+    int quarantineCount = 6,
     int barricadedDoorCount = 1,
     int suspicionCount = 1,
     int changeTurnCount = 10,
-    int panicCount = 10,
+    int panicCount = 5,
   }) {
     _initializeDeck(
       playerCount,
