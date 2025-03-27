@@ -3,33 +3,54 @@ import '../models/player_model.dart';
 import '../models/card_model.dart';
 import 'deck.dart';
 
-class GameManager {
-  List<PlayerModel> players = [];
-  Deck deck;
-  int currentPlayerIndex = 0;
-  bool isClockwise = true;
+  class GameManager {
+    List<PlayerModel> players = [];
+    Deck deck;
+    int currentPlayerIndex = 0;
+    bool isClockwise = true;
 
-  GameManager(int playerCount) : deck = Deck(playerCount) {
-    setupGame(playerCount);
-  }
-
-    void setupGame(int playerCount) {
-      if (playerCount < 4) throw Exception("Минимум 4 игрока!");
+    GameManager(int playerCount) : deck = Deck(playerCount:playerCount) {
+      // Создаем игроков
       for (int i = 1; i <= playerCount; i++) {
         players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
       }
-      int thingIndex = Random().nextInt(playerCount);
-      players[thingIndex].role = Role.Thing;
-      players[thingIndex].addCard(CardModel(name: "Нечто", type: CardType.Event));
-      deck.shuffle();
-      for (var player in players) {
-        if (player.role != Role.Thing) {
-          var card = deck.drawCard();
-          if (card != null) player.addCard(card);
-        }
-      }
+
+      setupGame(playerCount);
     }
 
+    void setupGame(int playerCount) {
+      // Назначаем одному игроку роль "Нечто"
+      int thingIndex = Random().nextInt(playerCount);
+      players[thingIndex].role = Role.Thing;
+
+      // Находим карту "Нечто" в колоде и выдаем её игроку с ролью "Нечто"
+      try {
+        var thingCount = deck.cards.firstWhere((card) => card.name == "Нечто");
+        players[thingIndex].addCard(thingCount); // Выдаем карту игроку
+        deck.cards.remove(thingCount); // Удаляем карту из колоды
+      } catch (e) {
+        throw Exception("Колода не содержит карту 'Нечто'!");
+      }
+
+      // Перемешиваем колоду
+      deck.shuffle();
+
+      // Раздаем каждому игроку по 4 карты
+      for (var player in players) {
+        int cardsToDraw = player.role == Role.Thing ? 3 : 4; // Ограничиваем количество карт для "Нечто"
+        for (int i = 0; i < cardsToDraw; i++) {
+          var card = deck.drawCard();
+          if (card != null) {         // Проверяем, что карта не null
+            player.addCard(card);
+            print("${player.name} получил карту: ${card.name}"); // Отладочный вывод
+          } else {
+            throw Exception("Колода пуста! Невозможно раздать карты.");
+        }
+      }
+            // Перемешиваем колоду
+      deck.shuffle();
+    }
+  }
   PlayerModel getCurrentPlayer() => players[currentPlayerIndex];
 
   void nextTurn() {
