@@ -51,7 +51,7 @@ class Deck {
     }
 
     // Добавляем остальные карты с указанным количеством
-    _addCards("Нечто", CardType.Event, "Главный по заражениям", thingCount);
+    _addCards("Нечто", CardType.Infection, "Главный по заражениям", thingCount);
     _addCards("Огнемёт", CardType.Event, "Уничтожает игрока", flamethrowerCount);
     _addCards("Анализ", CardType.Event, "Показывает роль", analysisCount);
     _addCards("Топор", CardType.Event, "Уничтожает баррикаду", axeCount);
