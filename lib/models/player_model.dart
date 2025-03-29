@@ -1,4 +1,5 @@
 import 'card_model.dart';
+import 'card_type.dart';
 
 enum Role { Human, Thing, Infected }
 
@@ -36,10 +37,10 @@ Map<String, dynamic> toJson() => {
       name: json['name'],
       role: Role.values.firstWhere((r) => r.toString().split('.').last == json['role']),
     );
-    player.hand = (json['hand'] as List).map((c) => CardModel.fromJson(c)).toList();
-    player.isQuarantined = json['isQuarantined'];
-    player.isBarricaded = json['isBarricaded'];
-    player.isAlive = json['isAlive'];
+    player.hand = (json['hand'] as List)
+        .map((c) => CardModel.fromJson(c))
+        .toList()
+        .cast<CardModel>(); // Явное приведение типа
     return player;
   }
 }

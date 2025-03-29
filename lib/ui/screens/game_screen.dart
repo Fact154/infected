@@ -51,21 +51,26 @@ class _GameScreenState extends State<GameScreen> {
           ),
           const SizedBox(height: 10),
           Container(
-            height: 120, // Высота для отображения карт
+            height: 150, // Увеличьте высоту для SVG
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: game.getCurrentPlayer().hand.isNotEmpty
                 ? ListView.builder(
-                    scrollDirection: Axis.horizontal, // Горизонтальная прокрутка
-                    itemCount: game.getCurrentPlayer().hand.length,
-                    itemBuilder: (context, index) {
-                      var card = game.getCurrentPlayer().hand[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: PlayerCard(cardName: card.name),
-                      );
-                    },
-                  )
-                : const Text("У вас нет карт"),
+              scrollDirection: Axis.horizontal,
+              itemCount: game.getCurrentPlayer().hand.length,
+              itemBuilder: (context, index) {
+                var card = game.getCurrentPlayer().hand[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: PlayerCard(
+                    cardName: card.name,
+                    cardType: card.type, // Передаём тип карты
+                    width: 100,
+                    height: 140,
+                  ),
+                );
+              },
+            )
+                : const Center(child: Text("У вас нет карт")),
           ),
           const SizedBox(height: 20),
           // Кнопки управления

@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../models/card_type.dart';
 import '../models/card_model.dart';
 
 class Deck {
