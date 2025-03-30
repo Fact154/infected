@@ -25,6 +25,7 @@ class PlayerCard extends StatelessWidget {
         .replaceAll(' ', '_')
         .replaceAll('!', '')
         .replaceAll('.', '')
+        .replaceAll('?', '')
         .replaceAll('ё', 'е');
     return 'assets/cards/$formattedName.svg';
   }
@@ -71,7 +72,7 @@ class PlayerCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: _getCardColor(), // Используем новый метод
+        color: _getCardColor(),
         border: Border.all(color: Colors.black, width: 2),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -82,28 +83,14 @@ class PlayerCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              cardName,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _svgCache[cardName] ??= SvgPicture.asset(
-                _getSvgAssetPath(cardName),
-                semanticsLabel: cardName,
-                placeholderBuilder: (_) => const CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: _svgCache[cardName] ??= SvgPicture.asset(
+          _getSvgAssetPath(cardName),
+          semanticsLabel: cardName,
+          placeholderBuilder: (_) => const CircularProgressIndicator(),
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

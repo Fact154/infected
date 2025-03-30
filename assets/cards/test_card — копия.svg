@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg height="150" viewBox="0 0 100 150" width="100" xmlns="http://www.w3.org/2000/svg">
+<rect fill="white" height="150" stroke="black" width="100"/>
+<text font-size="14" text-anchor="middle" x="50" y="75">Test Card</text>
+</svg>
