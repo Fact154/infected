@@ -1,69 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:math';
 import '../../models/card_type.dart';
+import '../../models/card_model.dart';
 
 class PlayerCard extends StatelessWidget {
   final String cardName;
   final double width;
   final double height;
-  final CardType? cardType; // Добавляем тип карты
+  final CardType? cardType;
+  final int? imageVariant;
+  static final Random _random = Random();
 
-  // Кеш для SVG
-  static final Map<String, SvgPicture> _svgCache = {};
+  // Кеш для изображений
+  static final Map<String, Image> _imageCache = {};
 
   const PlayerCard({
     required this.cardName,
-    this.cardType, // Новый параметр
+    this.cardType,
     this.width = 100,
     this.height = 150,
+    this.imageVariant,
     Key? key,
   }) : super(key: key);
 
-  String _getSvgAssetPath(String name) {
-    final formattedName = name
-        .toLowerCase()
-        .replaceAll(' ', '_')
-        .replaceAll('!', '')
-        .replaceAll('.', '')
-        .replaceAll('?', '')
-        .replaceAll('ё', 'е');
-    return 'assets/cards/$formattedName.svg';
-  }
+  String _getImageAssetPath(String name) {
+    // Нормализуем имя файла
+    String normalizedName = name
+      .replaceAll('!', '')  // Убираем восклицательные знаки
+      .replaceAll('?', '')  // Убираем вопросительные знаки
+      .replaceAll('...', '') // Убираем многоточие
+      .replaceAll('ё', 'е') // Заменяем ё на е для файловой системы
+      .replaceAll(' ', '_') // Заменяем пробелы на подчеркивания
+      .replaceAll('.', '') // Убираем точки
+      .toLowerCase(); // Приводим к нижнему регистру
 
-  // Метод для определения цвета по типу карты
-  Color _getCardColor() {
-    switch(cardType) {
-      case CardType.Infection:
-        return Colors.red[100]!;
-      case CardType.Panic:
-        return Colors.orange[100]!;
-      case CardType.Event:
-        return Colors.blue[100]!;
-      default:
-        return Colors.grey[300]!;
+    // Для карты Заражение используем сохраненный вариант изображения
+    if (normalizedName == 'заражение') {
+      if (imageVariant != null) {
+        return 'assets/cards/заражение$imageVariant.png';
+      }
+      // Если вариант не указан, генерируем случайный
+      if (!_imageCache.containsKey(name)) {
+        final infectionNumber = _random.nextInt(4) + 1;
+        return 'assets/cards/заражение$infectionNumber.png';
+      } else {
+        final cachedPath = _imageCache[name]!.image.toString();
+        return cachedPath.substring(cachedPath.indexOf('assets/cards/'));
+      }
     }
-  }
 
-  @override
-  Widget _buildCardImage() {
-    try {
-      final path = _getSvgAssetPath(cardName);
-      debugPrint('Loading SVG from: $path'); // Логирование пути
-      return _svgCache[cardName] ??= SvgPicture.asset(
-        path,
-        semanticsLabel: cardName,
-        placeholderBuilder: (_) => const Icon(Icons.credit_card), // Запасной виджет
-      );
-    } catch (e) {
-      debugPrint('Error loading SVG for $cardName: $e');
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error, color: Colors.red),
-          Text(cardName, style: const TextStyle(fontSize: 10)),
-        ],
-      );
+    // Для карты Нечто используем специальный путь
+    if (normalizedName == 'нечто') {
+      return 'assets/cards/нечто.png';
     }
+
+    // Для остальных карт используем нормализованное имя
+    return 'assets/cards/$normalizedName.png';
   }
 
   @override
@@ -72,7 +64,7 @@ class PlayerCard extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: _getCardColor(),
+        color: Colors.white,
         border: Border.all(color: Colors.black, width: 2),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -85,11 +77,31 @@ class PlayerCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(6),
-        child: _svgCache[cardName] ??= SvgPicture.asset(
-          _getSvgAssetPath(cardName),
-          semanticsLabel: cardName,
-          placeholderBuilder: (_) => const CircularProgressIndicator(),
+        child: _imageCache[cardName] ??= Image.asset(
+          _getImageAssetPath(cardName),
           fit: BoxFit.cover,
+          cacheWidth: width.toInt(),
+          cacheHeight: height.toInt(),
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('Ошибка загрузки изображения для $cardName: $error');
+            return Container(
+              color: Colors.grey[200],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red),
+                  const SizedBox(height: 4),
+                  Text(
+                    cardName,
+                    style: const TextStyle(fontSize: 10),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

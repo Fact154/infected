@@ -121,11 +121,15 @@ class Deck {
       }) {
     // Инфекционные карты
     int infectionCount = (playerCount / 2).ceil();
+    List<int> infectionNumbers = List.generate(4, (index) => index + 1);
+    infectionNumbers.shuffle(Random());
+    
     for (int i = 0; i < infectionCount; i++) {
       cards.add(CardModel(
         name: "Заражение!",
         type: CardType.Infection,
         effect: "Получив эту карту от другого игрока, Вы становитесь зараженным",
+        imageVariant: infectionNumbers[i % 4], // Равномерно распределяем варианты изображений
       ));
     }
 

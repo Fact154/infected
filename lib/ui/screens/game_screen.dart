@@ -98,6 +98,9 @@ class _GameScreenState extends State<GameScreen> {
               child: EnlargedCard(
                 cardName: enlargedCardName!,
                 onDismiss: () => setState(() => enlargedCardName = null),
+                imageVariant: game.getCurrentPlayer().hand
+                    .firstWhere((card) => card.name == enlargedCardName)
+                    .imageVariant,
               ),
             ),
           // Карты на руке (верхний слой)
@@ -125,30 +128,28 @@ class _GameScreenState extends State<GameScreen> {
                 // Добавляем контейнер для названий карт
                 if (game.getCurrentPlayer().hand.isNotEmpty)
                   Container(
-                    height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: game.getCurrentPlayer().hand.length,
-                      itemBuilder: (context, index) {
-                        var card = game.getCurrentPlayer().hand[index];
-                        return Container(
-                          width: enlargedCardName != null ? 72 : 80,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(4),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (var card in game.getCurrentPlayer().hand)
+                          Container(
+                            width: enlargedCardName != null ? 72 : 80,
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              card.name,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          child: Text(
-                            card.name,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      },
+                      ],
                     ),
                   ),
                 const SizedBox(height: 4),
@@ -159,55 +160,53 @@ class _GameScreenState extends State<GameScreen> {
                   height: enlargedCardName != null ? 108 : 120,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: game.getCurrentPlayer().hand.isNotEmpty
-                      ? ListView.builder(
+                      ? SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          itemCount: game.getCurrentPlayer().hand.length,
-                          itemBuilder: (context, index) {
-                            var card = game.getCurrentPlayer().hand[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (enlargedCardName != null) {
-                                    // Если есть увеличенная карта, показываем новую и выбираем её
-                                    setState(() {
-                                      enlargedCardName = card.name;
-                                      selectedCardName = card.name;
-                                    });
-                                  } else {
-                                    // Если нет увеличенной карты, обрабатываем как выбор
-                                    _handleCardTap(card.name);
-                                  }
-                                },
-                                onLongPress: () {
-                                  if (enlargedCardName == null) {
-                                    // Показываем увеличенную карту только если её ещё нет
-                                    _handleCardLongPress(card.name);
-                                    // Также выбираем карту при увеличении
-                                    setState(() {
-                                      selectedCardName = card.name;
-                                    });
-                                  }
-                                },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: selectedCardName == card.name ? Colors.blue : Colors.transparent,
-                                      width: 3,
+                          child: Row(
+                            children: [
+                              for (var card in game.getCurrentPlayer().hand)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (enlargedCardName != null) {
+                                        setState(() {
+                                          enlargedCardName = card.name;
+                                          selectedCardName = card.name;
+                                        });
+                                      } else {
+                                        _handleCardTap(card.name);
+                                      }
+                                    },
+                                    onLongPress: () {
+                                      if (enlargedCardName == null) {
+                                        _handleCardLongPress(card.name);
+                                        setState(() {
+                                          selectedCardName = card.name;
+                                        });
+                                      }
+                                    },
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: selectedCardName == card.name ? Colors.blue : Colors.transparent,
+                                          width: 3,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: PlayerCard(
+                                        cardName: card.name,
+                                        cardType: card.type,
+                                        width: enlargedCardName != null ? 72 : 80,
+                                        height: enlargedCardName != null ? 108 : 120,
+                                        imageVariant: card.imageVariant,
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: PlayerCard(
-                                    cardName: card.name,
-                                    cardType: card.type,
-                                    width: enlargedCardName != null ? 72 : 80,
-                                    height: enlargedCardName != null ? 108 : 120,
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                            ],
+                          ),
                         )
                       : const Center(
                           child: Text(
