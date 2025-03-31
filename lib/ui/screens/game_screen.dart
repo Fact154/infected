@@ -3,8 +3,14 @@ import '../../game_logic/game_manager.dart';
 import '../widgets/player_card.dart'; // Импорт виджета PlayerCard
 
 class GameScreen extends StatefulWidget {
+  final bool alien;
   final int playerCount;
-  const GameScreen({required this.playerCount, Key? key}) : super(key: key);
+  const GameScreen({
+    Key? key,
+    required this.playerCount,
+    required this.alien, // Добавлен alien в конструктор
+  }) : super(key: key);
+  //const GameScreen({required this.playerCount, Key? key}) : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -16,7 +22,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    game = GameManager(widget.playerCount);
+    game = GameManager(widget.playerCount, widget.alien);
   }
 
   @override
