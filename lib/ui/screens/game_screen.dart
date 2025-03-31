@@ -50,12 +50,20 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(title: const Text("Игра")),
       body: Stack(
         children: [
+          Container( // Фон
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/background.jpg"), // Ваша картинка
+                fit: BoxFit.cover, // Масштабирование
+              ),
+            ),
+          ),
           // Основной контент (список игроков и кнопки)
           Column(
             children: [
               Text(
                 "Текущий игрок: ${game.getCurrentPlayer().name}",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, ),
               ),
               const SizedBox(height: 10),
               // Отображение списка игроков
@@ -78,6 +86,12 @@ class _GameScreenState extends State<GameScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black, // Фон кнопки черный
+                      foregroundColor: Colors.red, // Текст кнопки красный
+                      textStyle: TextStyle(fontSize: 18), // Optional: Customize button text style
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Optional: Customize button padding
+                    ),
                     onPressed: () {
                       setState(() {
                         game.drawAndProcessCard(game.getCurrentPlayer());
@@ -86,6 +100,12 @@ class _GameScreenState extends State<GameScreen> {
                     child: const Text("Взять карту"),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black, // Фон кнопки черный
+                      foregroundColor: Colors.red, // Текст кнопки красный
+                      textStyle: TextStyle(fontSize: 18), // Optional: Customize button text style
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Optional: Customize button padding
+                    ),
                     onPressed: () {
                       setState(() {
                         game.nextTurn();
