@@ -1,5 +1,5 @@
 import 'card_model.dart';
-import 'card_type.dart';
+// import 'card_type.dart';
 
 enum Role { Human, Thing, Infected }
 

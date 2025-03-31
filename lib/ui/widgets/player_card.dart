@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../models/card_type.dart';
-import '../../models/card_model.dart';
+// import '../../models/card_model.dart';
 
 class PlayerCard extends StatelessWidget {
   final String cardName;
