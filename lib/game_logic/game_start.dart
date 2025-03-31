@@ -7,11 +7,13 @@ class GameStart {
   final List<PlayerModel> players;
   final Deck deck;
   final int playerCount;
+  final bool alien_card;
 
   GameStart({
     required this.players,
     required this.deck,
     required this.playerCount,
+    required this.alien_card,
   });
 
   void setup() {
@@ -20,13 +22,14 @@ class GameStart {
     players[thingIndex].role = Role.Thing;
 
     // Находим карту "Нечто" в колоде и выдаем её игроку с ролью "Нечто"
-    try {
-      var thingCard = deck.cards.firstWhere((card) => card.name == "Нечто");
-      players[thingIndex].addCard(thingCard); // Выдаем карту игроку
-      deck.cards.remove(thingCard); // Удаляем карту из колоды
-    } catch (e) {
-      throw Exception("Колода не содержит карту 'Нечто'!");
-    }
+    if (alien_card == true) {
+      try {
+        var thingCard = deck.cards.firstWhere((card) => card.name == "Нечто");
+        players[thingIndex].addCard(thingCard); // Выдаем карту игроку
+        deck.cards.remove(thingCard); // Удаляем карту из колоды
+      } catch (e) {
+        throw Exception("Колода не содержит карту 'Нечто'!");
+      }}
 
     // Список исключаемых карт
     final List<String> excludedCards = [

@@ -14,6 +14,7 @@ class LocalStorage {
       'deck': game.deck.cards.map((c) => c.toJson()).toList(),
       'currentPlayerIndex': game.currentPlayerIndex,
       'isClockwise': game.isClockwise,
+
     };
     await prefs.setString(_gameKey, jsonEncode(gameState));
   }
@@ -27,7 +28,7 @@ class LocalStorage {
     final players = (gameState['players'] as List).map((p) => PlayerModel.fromJson(p)).toList();
     final deckCards = (gameState['deck'] as List).map((c) => CardModel.fromJson(c)).toList();
 
-    final game = GameManager(players.length);
+    final game = GameManager(players.length, true);
     game.players = players;
     game.deck.cards = deckCards;
     game.currentPlayerIndex = gameState['currentPlayerIndex'];

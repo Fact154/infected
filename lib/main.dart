@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'game_logic/game_manager.dart';
-import 'ui/screens/game_screen.dart';
 import 'ui/screens/manual_screen.dart';
+import 'ui/screens/setting_screen.dart';
 void main() {
   runApp(MyApp());
 }
@@ -33,10 +33,10 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GameScreen(playerCount: 4)),
+                  MaterialPageRoute(builder: (context) => SettingsScreen()),
                 );
               },
-              child: const Text("Начать игру (4 игрока)"),
+              child: const Text("Начать игру"),
             ),
             SizedBox(height: 16),
             ElevatedButton(
