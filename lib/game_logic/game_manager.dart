@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/player_model.dart';
 import '../models/card_model.dart';
+import '../models/card_type.dart';
 import 'deck.dart';
 import 'game_start.dart';
 
