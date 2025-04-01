@@ -36,7 +36,18 @@ class GameStart {
     final List<String> excludedCards = [
         "Паника!",
         "Смена хода",
-        // Добавьте другие карты, которые нужно исключить
+        "Цепная реакция",
+        "Забывчивость",
+        "Убирайся прочь!",
+        "И это вы называете вечеринкой?",
+        "Раз, два...",
+        "...три, четыре...",
+        "Время признаний",
+        "Только между нами",
+        "Уупс!",
+        "Свидание вслепую",
+        "Давай дружить?",
+        "Старые верёвки"
     ];
     if (alien_card == false) {
       excludedCards.add("Нечто"); // Добавляем карту "Нечто", если alien == false
@@ -50,7 +61,7 @@ class GameStart {
     for (var player in players) {
       int cardsToDraw = player.role == Role.Thing ? 3 : 4; // Ограничиваем количество карт для "Нечто"
 
-      for (int i = 0; i < cardsToDraw; i++) {
+      for (int j = 0; j < cardsToDraw; j++) {
         CardModel? card;
         do {
           card = deck.drawCard(); // Берем карту из колоды
@@ -62,6 +73,20 @@ class GameStart {
         player.addCard(card); // Выдаем карту игроку
         print("${player.name} получил карту: ${card.name}"); // Отладочный вывод
       }
+    }
+
+    // Выдаем дополнительную карту первому игроку, если у него меньше 5 карт
+    if (players[0].hand.length < 5) {
+      CardModel? card;
+      do {
+        card = deck.drawCard();
+        if (card == null) {
+          throw Exception("Колода пуста! Невозможно выдать дополнительную карту.");
+        }
+      } while (excludedCards.contains(card.name));
+      
+      players[0].addCard(card);
+      print("${players[0].name} получил дополнительную карту: ${card.name}");
     }
 
     // Перемешиваем колоду после раздачи

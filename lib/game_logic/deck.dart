@@ -29,7 +29,7 @@ class Deck {
     int noThanksCount = 1,
     int hplovecraftCount = 1,
     int necronomiconCount = 1,
-    int chainReactionCount = 2,
+    int chainReactionCount = 4,
     int forgetfulnessCount = 2,
     int getOutCount = 2,
     int badPartyCount = 1,

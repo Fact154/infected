@@ -56,9 +56,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Expanded(
                   child: Slider(
                     value: _Seak_cards.toDouble(),
-                    min: 2,
-                    max: 4,
-                    divisions: 8,
+                    min: 4,
+                    max: 11,
+                    divisions: 7,
                     label: _Seak_cards.round().toString(),
                     onChanged: (double value) {
                       setState(() {

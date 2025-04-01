@@ -5,31 +5,37 @@ import '../models/card_type.dart';
 import 'deck.dart';
 import 'game_start.dart';
 
-  class GameManager {
-    List<PlayerModel> players = [];
-    Deck deck;
-    int currentPlayerIndex = 0;
-    bool isClockwise = true;
+class GameManager {
+  List<PlayerModel> players = [];
+  Deck deck;
+  int currentPlayerIndex = 0;
+  bool isClockwise = true;
 
-    GameManager(int playerCount, bool alien) : deck = Deck(playerCount: playerCount) {
-      // Создаем игроков
-      for (int i = 1; i <= playerCount; i++) {
-        players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
-      }
-
-      // Используем GameSetup для настройки игры
-      GameStart(
-        players: players,
-        deck: deck,
-        playerCount: playerCount,
-        alien_card: alien,
-      ).setup();
+  GameManager(int playerCount, bool alien) : deck = Deck(playerCount: playerCount) {
+    // Создаем игроков
+    for (int i = 1; i <= playerCount; i++) {
+      players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
     }
 
-    
+    // Используем GameSetup для настройки игры
+    GameStart(
+      players: players,
+      deck: deck,
+      playerCount: playerCount,
+      alien_card: alien,
+    ).setup();
+  }
+
   PlayerModel getCurrentPlayer() => players[currentPlayerIndex];
 
   void nextTurn() {
+    currentPlayerIndex = _getNextPlayerIndex();
+    while (!players[currentPlayerIndex].isAlive) {
+      currentPlayerIndex = _getNextPlayerIndex();
+    }
+  }
+
+  void forceNextTurn() {
     currentPlayerIndex = _getNextPlayerIndex();
     while (!players[currentPlayerIndex].isAlive) {
       currentPlayerIndex = _getNextPlayerIndex();
@@ -120,33 +126,58 @@ import 'game_start.dart';
     }
     print("Текущий ход: ${getCurrentPlayer().name}, направление: ${isClockwise ? 'по часовой' : 'против'}");
   }
-void exchangeCards(PlayerModel initiator, PlayerModel target, CardModel initiatorCard, CardModel targetCard) {
-  if (!initiator.isAlive || !target.isAlive || initiator.isQuarantined || target.isQuarantined || initiator.isBarricaded || target.isBarricaded) {
-    print("Обмен невозможен!");
-    return;
-  }
-  if (!initiator.hand.contains(initiatorCard) || !target.hand.contains(targetCard)) return;
 
-  if (initiatorCard.name == "Заражение!" && target.role == Role.Infected) {
-    int targetInfections = target.hand.where((c) => c.name == "Заражение!").length;
-    if (targetInfections >= 3) {
-      print("У цели уже максимум карт 'Заражение!'");
+  void exchangeCards(PlayerModel initiator, PlayerModel target, CardModel initiatorCard, CardModel targetCard) {
+    print("\n=== Попытка обмена картами ===");
+    print("Инициатор: ${initiator.name}");
+    print("Цель: ${target.name}");
+    print("Карта инициатора: ${initiatorCard.name}");
+    print("Карта цели: ${targetCard.name}");
+
+    // Проверка на карту "Нечто"
+    if (initiatorCard.name == "Нечто" || targetCard.name == "Нечто") {
+      print("❌ Обмен невозможен! Карту 'Нечто' нельзя обменять");
       return;
     }
-  }
-  if (!initiator.hand.contains(initiatorCard) || !target.hand.contains(targetCard)) return;
 
-  initiator.hand.remove(initiatorCard);
-  target.hand.remove(targetCard);
-  initiator.addCard(targetCard);
-  target.addCard(initiatorCard);
+    // Проверка на карту "Заражение!"
+    if (initiatorCard.name == "Заражение!") {
+      // Проверяем, является ли инициатор Нечто или зараженным
+      if (initiator.role != Role.Thing && initiator.role != Role.Infected) {
+        print("❌ Обмен невозможен! Только Нечто или зараженный игрок может передать карту 'Заражение!'");
+        return;
+      }
+      
+      // Если инициатор заражен, проверяем, является ли цель Нечто
+      if (initiator.role == Role.Infected && target.role != Role.Thing) {
+        print("❌ Обмен невозможен! Зараженный игрок может передать карту 'Заражение!' только Нечто");
+        return;
+      }
+    }
 
-  // Проверка заражения
-  if (initiatorCard.name == "Заражение!" && target.role == Role.Human) {
-    target.role = Role.Infected;
+    if (!initiator.isAlive || !target.isAlive || initiator.isQuarantined || target.isQuarantined || initiator.isBarricaded || target.isBarricaded) {
+      print("❌ Обмен невозможен! Проверьте состояние игроков");
+      return;
+    }
+    if (!initiator.hand.contains(initiatorCard) || !target.hand.contains(targetCard)) {
+      print("❌ Обмен невозможен! У игроков нет указанных карт");
+      return;
+    }
+
+    if (initiatorCard.name == "Заражение!" && target.role == Role.Infected) {
+      int targetInfections = target.hand.where((c) => c.name == "Заражение!").length;
+      if (targetInfections >= 3) {
+        print("❌ Обмен невозможен! У цели уже максимум карт 'Заражение!'");
+        return;
+      }
+    }
+
+    initiator.hand.remove(initiatorCard);
+    target.hand.remove(targetCard);
+    initiator.hand.add(targetCard);
+    target.hand.add(initiatorCard);
+    
+    print("✅ Обмен выполнен успешно");
+    print("=== Конец обмена ===\n");
   }
-  if (targetCard.name == "Заражение!" && initiator.role == Role.Human) {
-    initiator.role = Role.Infected;
-  }
-}
 }

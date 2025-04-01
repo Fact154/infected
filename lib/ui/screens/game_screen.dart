@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../game_logic/game_manager.dart';
-import '../widgets/player_card.dart'; // Импорт виджета PlayerCard
+import '../../game_logic/exchange_manager.dart';
+import '../widgets/player_card.dart';
 import '../widgets/enlarged_card.dart';
+import '../widgets/player_cards_dialog.dart';
+import '../../models/player_model.dart';
+import '../../models/card_model.dart';
 
 class GameScreen extends StatefulWidget {
   final bool alien;
@@ -9,9 +13,8 @@ class GameScreen extends StatefulWidget {
   const GameScreen({
     Key? key,
     required this.playerCount,
-    required this.alien, // Добавлен alien в конструктор
+    required this.alien,
   }) : super(key: key);
-  //const GameScreen({required this.playerCount, Key? key}) : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -19,6 +22,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late GameManager game;
+  late ExchangeManager exchangeManager;
   String? enlargedCardName;
   String? selectedCardName;
 
@@ -26,14 +30,21 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     game = GameManager(widget.playerCount, widget.alien);
+    exchangeManager = ExchangeManager(game: game, context: context);
   }
 
   void _handleCardTap(String cardName) {
     setState(() {
-      if (selectedCardName == cardName) {
-        selectedCardName = null;
+      if (exchangeManager.isExchangeMode) {
+        // В режиме обмена
+        exchangeManager.selectCardForExchange(cardName);
       } else {
-        selectedCardName = cardName;
+        // В обычном режиме
+        if (selectedCardName == cardName) {
+          selectedCardName = null;
+        } else {
+          selectedCardName = cardName;
+        }
       }
     });
   }
@@ -44,13 +55,37 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+  void _showPlayerCards(PlayerModel player) {
+    showDialog(
+      context: context,
+      builder: (context) => PlayerCardsDialog(player: player),
+    );
+  }
+
+  void _handleCardAction(String action) {
+    if (selectedCardName == null) return;
+
+    setState(() {
+      if (action == 'discard') {
+        var card = game.getCurrentPlayer().hand.firstWhere((c) => c.name == selectedCardName);
+        game.getCurrentPlayer().hand.remove(card);
+        game.deck.cards.add(card);
+        game.deck.shuffle();
+      } else if (action == 'play') {
+        print('Игрок пытается сыграть карту: $selectedCardName');
+      } else if (action == 'exchange') {
+        exchangeManager.startExchange(selectedCardName!);
+      }
+      selectedCardName = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Игра")),
       body: Stack(
         children: [
-          // Основной контент (список игроков и кнопки)
           Column(
             children: [
               Text(
@@ -58,22 +93,32 @@ class _GameScreenState extends State<GameScreen> {
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              // Отображение списка игроков
               Expanded(
                 child: ListView.builder(
                   itemCount: game.players.length,
                   itemBuilder: (context, index) {
                     var player = game.players[index];
-                    return ListTile(
-                      title: Text(player.name),
-                      subtitle: Text(
-                          "Карт: ${player.hand.length}, ${player.isAlive ? 'жив' : 'мёртв'}"),
+                    return GestureDetector(
+                      onTap: () => _showPlayerCards(player),
+                      child: ListTile(
+                        title: Text(player.name),
+                        subtitle: Text(
+                          "Карт: ${player.hand.length}, ${player.isAlive ? 'жив' : 'мёртв'}, ${player.isQuarantined ? 'в карантине' : ''}, ${player.isBarricaded ? 'за баррикадой' : ''}",
+                        ),
+                        leading: Icon(
+                          player.role == Role.Thing ? Icons.bug_report : 
+                          player.role == Role.Infected ? Icons.coronavirus : 
+                          Icons.person,
+                          color: player.role == Role.Thing ? Colors.red :
+                                 player.role == Role.Infected ? Colors.green :
+                                 Colors.blue,
+                        ),
+                      ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 180), // Место для карт
-              // Кнопки управления
+              const SizedBox(height: 180),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -88,8 +133,9 @@ class _GameScreenState extends State<GameScreen> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        game.nextTurn();
                         selectedCardName = null;
+                        exchangeManager.resetExchange();
+                        game.nextTurn();
                       });
                     },
                     child: const Text("Следующий ход"),
@@ -98,7 +144,6 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ],
           ),
-          // Увеличенная карта (средний слой)
           if (enlargedCardName != null)
             Positioned.fill(
               child: EnlargedCard(
@@ -109,7 +154,6 @@ class _GameScreenState extends State<GameScreen> {
                     .imageVariant,
               ),
             ),
-          // Карты на руке (верхний слой)
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -118,6 +162,95 @@ class _GameScreenState extends State<GameScreen> {
             bottom: enlargedCardName != null ? 20 : 60,
             child: Column(
               children: [
+                if (selectedCardName != null && !exchangeManager.isExchangeMode)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (game.getCurrentPlayer().hand.length == 4) ...[
+                          ElevatedButton(
+                            onPressed: () => _handleCardAction('exchange'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text("Обменять"),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () => _handleCardAction('play'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text("Сыграть"),
+                          ),
+                        ],
+                        if (game.getCurrentPlayer().hand.length >= 5) ...[
+                          ElevatedButton(
+                            onPressed: () => _handleCardAction('discard'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text("Сбросить"),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () => _handleCardAction('play'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text("Сыграть"),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                if (exchangeManager.isExchangeMode && exchangeManager.selectedCardName != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              exchangeManager.completeExchange();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text("Обменять"),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () => _handleCardAction('play'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text("Сыграть"),
+                        ),
+                      ],
+                    ),
+                  ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 300),
                   opacity: enlargedCardName != null ? 0.0 : 1.0,
@@ -131,7 +264,6 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Добавляем контейнер для названий карт
                 if (game.getCurrentPlayer().hand.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -159,7 +291,6 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
                 const SizedBox(height: 4),
-                // Контейнер с картами
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
