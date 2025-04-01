@@ -4,6 +4,11 @@ import '../models/card_model.dart';
 
 class Deck {
   List<CardModel> cards = [];
+  List<CardModel> discardPile = [];
+
+  void discardCard(CardModel card) {
+    discardPile.add(card);
+  }
 
   Deck({
     required int playerCount,
@@ -156,8 +161,6 @@ class Deck {
     _addCards("Некрономикон", CardType.Event, "Любой игрок выбывает из игры", necronomiconCount);
 
     // Карты паники
-    _addCards("Смена хода", CardType.Panic, "Меняет направление хода", changeTurnCount);
-    _addCards("Паника!", CardType.Panic, "Сбрасывает карту", panicCount);
     _addCards("Цепная реакция", CardType.Panic, "Все передают 1 карту следующему", chainReactionCount);
     _addCards("Забывчивость", CardType.Panic, "Сбросьте 3, возьмите 3 новые", forgetfulnessCount);
     _addCards("Убирайся прочь!", CardType.Panic, "Поменяйтесь местами с любым", getOutCount);
