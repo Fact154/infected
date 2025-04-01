@@ -7,7 +7,7 @@ import 'dart:math';
 import '../../models/player_model.dart';// Import для генерации случайных чисел
 import '../widgets/player_cards_dialog.dart';
 
-
+import 'dart:math';
 class GameScreen extends StatefulWidget {
   final bool alien;
   final int playerCount;
@@ -83,6 +83,100 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+  Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
+
+    return Positioned(
+      left: x - 25,
+      top: y - 25,
+      child: GestureDetector(
+        onTap: () => _showPlayerCards(player),
+        child: Column(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isCurrentPlayer ? Colors.yellow : Colors.grey[300],
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isCurrentPlayer ? Colors.red : Colors.transparent, // Подсветка обводкой
+                  width: 2.0, // Толщина обводки
+                )
+              ),
+              child: Center(
+                child: Text(
+                  player.name.substring(player.name.length - 1),
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            // --- Отображение карт ---
+            Row(
+              children: List.generate(
+                player.hand.length, // Отображаем количество карт
+                    (index) => Padding(
+                  padding: const EdgeInsets.only(left: 2.0), // Небольшой отступ между картами
+                  child: Image.asset(
+                    'assets/cards/Событие.png', // Путь к изображению рубашки карты
+                    width: 15,   // Ширина карты
+                    height: 20,  // Высота карты
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
+
+    return Positioned(
+      left: x - 25,
+      top: y - 25,
+      child: GestureDetector(
+        onTap: () => _showPlayerCards(player),
+        child: Column(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isCurrentPlayer ? Colors.yellow : Colors.grey[300],
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isCurrentPlayer ? Colors.red : Colors.transparent, // Подсветка обводкой
+                  width: 2.0, // Толщина обводки
+                )
+              ),
+              child: Center(
+                child: Text(
+                  player.name.substring(player.name.length - 1),
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            // --- Отображение карт ---
+            Row(
+              children: List.generate(
+                player.hand.length, // Отображаем количество карт
+                    (index) => Padding(
+                  padding: const EdgeInsets.only(left: 2.0), // Небольшой отступ между картами
+                  child: Image.asset(
+                    'assets/cards/Событие.png', // Путь к изображению рубашки карты
+                    width: 15,   // Ширина карты
+                    height: 20,  // Высота карты
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // --- Добавлено ---
   Widget _buildPlayerWidget(PlayerModel player, double x, double y) {
     return Positioned(
@@ -94,21 +188,19 @@ class _GameScreenState extends State<GameScreen> {
   // --- Добавлено ---
   @override
   Widget build(BuildContext context) {
-    final double tableWidth = MediaQuery.of(context).size.width * 0.8; // Ширина стола (80% от ширины экрана)
-    final double tableHeight = MediaQuery.of(context).size.height * 0.6; // Высота стола (60% от высоты экрана)
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height * 0.8;
+    final double tableRadius = min(screenWidth, screenHeight) * 0.3;
     final double centerX = MediaQuery.of(context).size.width / 2;
-    final double centerY = MediaQuery.of(context).size.height / 2;
-    final double radius = min(tableWidth, tableHeight) / 2 * 0.8; // Радиус круга (80% от меньшей стороны стола)
+    final double centerY = MediaQuery.of(context).size.height * 0.35;
     List<Offset> playerPositions = [];
 
-    // Рассчитываем позиции игроков
     for (int i = 0; i < game.players.length; i++) {
-      double angle = (2 * pi / game.players.length) * i - pi / 2; // Распределение по кругу
-      double x = centerX + radius * cos(angle);
-      double y = centerY + radius * sin(angle);
+      double angle = (2 * pi / game.players.length) * i - pi / 2;
+      double x = centerX + tableRadius * cos(angle);
+      double y = centerY + tableRadius * sin(angle);
       playerPositions.add(Offset(x, y));
     }
-
 
     return Scaffold(
       appBar: AppBar(title: const Text("Игра"), backgroundColor: Colors.green,),
@@ -117,15 +209,14 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           Center(
             child: Container(
-              width: tableWidth,
-              height: tableHeight,
+              width: tableRadius * 2,  // Диаметр стола
+              height: tableRadius * 2, // Диаметр стола
               decoration: BoxDecoration(
-                color: Colors.brown, // Коричневый стол
-                borderRadius: BorderRadius.circular(tableWidth / 10), // Заглугленные углы
+                color: Colors.brown,  // Коричневый стол
+                shape: BoxShape.circle, // Круглая форма
               ),
             ),
           ),
-          // Основной контент (игроки, стол и кнопки)
           Column(
             children: [
               Text(
@@ -154,7 +245,7 @@ class _GameScreenState extends State<GameScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10), // Отступ между игроками и кнопками
+              const SizedBox(height: 0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -190,6 +281,43 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ],
               ),
+            ],
+          ),
+          Stack(
+            children: [
+              // bool isCurrentPlayer
+              for (int i = 0; i < game.players.length; i++)
+                // if (game.players[i] == game.getCurrentPlayer()){
+                //   bool isCurrentPlayer = true
+                // }
+                //bool isCurrentPlayer = game.players[i] == game.getCurrentPlayer();
+                Positioned(
+                  left: playerPositions[i].dx - 25, // Центрирование
+                  top: playerPositions[i].dy - 25,  // Центрирование
+                  child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                  bool isCurrentPlayer = game.players[i] == game.getCurrentPlayer();
+                  return _buildPlayerWidget(game.players[i], playerPositions[i].dx, playerPositions[i].dy, isCurrentPlayer);
+                  },
+                  // child: GestureDetector(
+                  //   onTap: () => _showPlayerCards(game.players[i]),
+                  //   child: Container(
+                  //     width: 50,
+                  //     height: 50,
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.grey[300],
+                  //       shape: BoxShape.circle,
+                  //     ),
+                  //     child: Center(
+                  //       child: Text(
+                  //         game.players[i].name.substring(game.players[i].name.length - 1),
+                  //         style: const TextStyle(fontSize: 16),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  ),
+                ),
             ],
           ),
           if (enlargedCardName != null)
