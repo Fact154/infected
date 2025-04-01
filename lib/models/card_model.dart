@@ -1,7 +1,7 @@
 import 'card_type.dart';
 
 // lib/models/card_model.dart
-import 'card_type.dart';
+// import 'card_type.dart';
 
 class CardModel {
   final String name;

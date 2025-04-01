@@ -11,7 +11,7 @@ import 'game_start.dart';
     int currentPlayerIndex = 0;
     bool isClockwise = true;
 
-    GameManager(int playerCount) : deck = Deck(playerCount: playerCount) {
+    GameManager(int playerCount, bool alien) : deck = Deck(playerCount: playerCount) {
       // Создаем игроков
       for (int i = 1; i <= playerCount; i++) {
         players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
@@ -22,6 +22,7 @@ import 'game_start.dart';
         players: players,
         deck: deck,
         playerCount: playerCount,
+        alien_card: alien,
       ).setup();
     }
 

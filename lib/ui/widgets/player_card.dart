@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../models/card_type.dart';
-import '../../models/card_model.dart';
+import '../utils/card_normalizer.dart'; // Импортируем нормализатор
 
 class PlayerCard extends StatelessWidget {
   final String cardName;
@@ -9,9 +9,6 @@ class PlayerCard extends StatelessWidget {
   final double height;
   final CardType? cardType;
   final int? imageVariant;
-  static final Random _random = Random();
-
-  // Кеш для изображений
   static final Map<String, Image> _imageCache = {};
 
   const PlayerCard({
@@ -22,41 +19,6 @@ class PlayerCard extends StatelessWidget {
     this.imageVariant,
     Key? key,
   }) : super(key: key);
-
-  String _getImageAssetPath(String name) {
-    // Нормализуем имя файла
-    String normalizedName = name
-      .replaceAll('!', '')  // Убираем восклицательные знаки
-      .replaceAll('?', '')  // Убираем вопросительные знаки
-      .replaceAll('...', '') // Убираем многоточие
-      .replaceAll('ё', 'е') // Заменяем ё на е для файловой системы
-      .replaceAll(' ', '_') // Заменяем пробелы на подчеркивания
-      .replaceAll('.', '') // Убираем точки
-      .toLowerCase(); // Приводим к нижнему регистру
-
-    // Для карты Заражение используем сохраненный вариант изображения
-    if (normalizedName == 'заражение') {
-      if (imageVariant != null) {
-        return 'assets/cards/заражение$imageVariant.png';
-      }
-      // Если вариант не указан, генерируем случайный
-      if (!_imageCache.containsKey(name)) {
-        final infectionNumber = _random.nextInt(4) + 1;
-        return 'assets/cards/заражение$infectionNumber.png';
-      } else {
-        final cachedPath = _imageCache[name]!.image.toString();
-        return cachedPath.substring(cachedPath.indexOf('assets/cards/'));
-      }
-    }
-
-    // Для карты Нечто используем специальный путь
-    if (normalizedName == 'нечто') {
-      return 'assets/cards/нечто.png';
-    }
-
-    // Для остальных карт используем нормализованное имя
-    return 'assets/cards/$normalizedName.png';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +40,7 @@ class PlayerCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(6),
         child: _imageCache[cardName] ??= Image.asset(
-          _getImageAssetPath(cardName),
+          CardNormalizer.getImageAssetPath(cardName, imageVariant: imageVariant),
           fit: BoxFit.cover,
           cacheWidth: width.toInt(),
           cacheHeight: height.toInt(),
