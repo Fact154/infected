@@ -6,10 +6,14 @@ import 'deck.dart';
 import 'game_start.dart';
 
   class GameManager {
+
+
     List<PlayerModel> players = [];
     Deck deck;
     int currentPlayerIndex = 0;
     bool isClockwise = true;
+
+
 
     GameManager(int playerCount, bool alien) : deck = Deck(playerCount: playerCount) {
       // Создаем игроков

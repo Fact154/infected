@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../game_logic/game_manager.dart';
-import '../widgets/player_card.dart'; // Импорт виджета PlayerCard
+import '../widgets/player_card.dart';
 import '../widgets/enlarged_card.dart';
+import 'dart:math';
+import '../../models/player_model.dart';// Import для генерации случайных чисел
 
 class GameScreen extends StatefulWidget {
   final bool alien;
   final int playerCount;
+
   const GameScreen({
     Key? key,
     required this.playerCount,
-    required this.alien, // Добавлен alien в конструктор
+    required this.alien,
   }) : super(key: key);
-  //const GameScreen({required this.playerCount, Key? key}) : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -44,53 +46,87 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+  // --- Добавлено ---
+  Widget _buildPlayerWidget(PlayerModel player, double x, double y) {
+    return Positioned(
+      left: x,
+      top: y,
+      child: PlayerInfoWidget(player: player), // Используем новый виджет
+    );
+  }
+  // --- Добавлено ---
   @override
   Widget build(BuildContext context) {
+    final double tableWidth = MediaQuery.of(context).size.width * 0.8; // Ширина стола (80% от ширины экрана)
+    final double tableHeight = MediaQuery.of(context).size.height * 0.6; // Высота стола (60% от высоты экрана)
+    final double centerX = MediaQuery.of(context).size.width / 2;
+    final double centerY = MediaQuery.of(context).size.height / 2;
+    final double radius = min(tableWidth, tableHeight) / 2 * 0.8; // Радиус круга (80% от меньшей стороны стола)
+    List<Offset> playerPositions = [];
+
+    // Рассчитываем позиции игроков
+    for (int i = 0; i < game.players.length; i++) {
+      double angle = (2 * pi / game.players.length) * i - pi / 2; // Распределение по кругу
+      double x = centerX + radius * cos(angle);
+      double y = centerY + radius * sin(angle);
+      playerPositions.add(Offset(x, y));
+    }
+
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Игра")),
+      appBar: AppBar(title: const Text("Игра"), backgroundColor: Colors.green,),
+      backgroundColor: Colors.green,
       body: Stack(
         children: [
-          Container( // Фон
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/background.jpg"), // Ваша картинка
-                fit: BoxFit.cover, // Масштабирование
+          Center(
+            child: Container(
+              width: tableWidth,
+              height: tableHeight,
+              decoration: BoxDecoration(
+                color: Colors.brown, // Коричневый стол
+                borderRadius: BorderRadius.circular(tableWidth / 10), // Заглугленные углы
               ),
             ),
           ),
-          // Основной контент (список игроков и кнопки)
+          // Основной контент (игроки, стол и кнопки)
           Column(
             children: [
               Text(
                 "Текущий игрок: ${game.getCurrentPlayer().name}",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, ),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              // Отображение списка игроков
-              Expanded(
-                child: ListView.builder(
-                  itemCount: game.players.length,
-                  itemBuilder: (context, index) {
-                    var player = game.players[index];
-                    return ListTile(
-                      title: Text(player.name),
-                      subtitle: Text(
-                          "Карт: ${player.hand.length}, ${player.isAlive ? 'жив' : 'мёртв'}"),
-                    );
-                  },
+              // --- Изменено: Отображение игроков ---
+              Expanded( // Чтобы Stack занял все доступное пространство
+                child: Stack(
+                  children: [
+                    // Здесь будет логика отрисовки стола (например, изображение)
+                    //  Можно добавить изображение стола здесь, если нужно
+                    // Пример:
+                    // Center(
+                    //   child: Image.asset('assets/table.png', width: tableWidth, height: tableHeight),
+                    // ),
+
+                    // Отображаем виджеты игроков
+                    for (int i = 0; i < game.players.length; i++)
+                      _buildPlayerWidget(
+                        game.players[i],
+                        playerPositions[i].dx - 25, // Центрирование по X (учитывая ширину виджета)
+                        playerPositions[i].dy - 25, // Центрирование по Y (учитывая высоту виджета)
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 180), // Место для карт
-              // Кнопки управления
+              const SizedBox(height: 10), // Отступ между игроками и кнопками
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Фон кнопки черный
-                      foregroundColor: Colors.red, // Текст кнопки красный
-                      textStyle: TextStyle(fontSize: 18), // Optional: Customize button text style
-                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Optional: Customize button padding
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.red,
+                      textStyle: const TextStyle(fontSize: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
                     onPressed: () {
                       setState(() {
@@ -101,10 +137,10 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Фон кнопки черный
-                      foregroundColor: Colors.red, // Текст кнопки красный
-                      textStyle: TextStyle(fontSize: 18), // Optional: Customize button text style
-                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Optional: Customize button padding
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.red,
+                      textStyle: const TextStyle(fontSize: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     ),
                     onPressed: () {
                       setState(() {
@@ -179,7 +215,6 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
                 const SizedBox(height: 4),
-                // Контейнер с картами
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -187,66 +222,86 @@ class _GameScreenState extends State<GameScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: game.getCurrentPlayer().hand.isNotEmpty
                       ? SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              for (var card in game.getCurrentPlayer().hand)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (enlargedCardName != null) {
-                                        setState(() {
-                                          enlargedCardName = card.name;
-                                          selectedCardName = card.name;
-                                        });
-                                      } else {
-                                        _handleCardTap(card.name);
-                                      }
-                                    },
-                                    onLongPress: () {
-                                      if (enlargedCardName == null) {
-                                        _handleCardLongPress(card.name);
-                                        setState(() {
-                                          selectedCardName = card.name;
-                                        });
-                                      }
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 300),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: selectedCardName == card.name ? Colors.blue : Colors.transparent,
-                                          width: 3,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: PlayerCard(
-                                        cardName: card.name,
-                                        cardType: card.type,
-                                        width: enlargedCardName != null ? 72 : 80,
-                                        height: enlargedCardName != null ? 108 : 120,
-                                        imageVariant: card.imageVariant,
-                                      ),
-                                    ),
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var card in game.getCurrentPlayer().hand)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (enlargedCardName != null) {
+                                  setState(() {
+                                    enlargedCardName = card.name;
+                                    selectedCardName = card.name;
+                                  });
+                                } else {
+                                  _handleCardTap(card.name);
+                                }
+                              },
+                              onLongPress: () {
+                                if (enlargedCardName == null) {
+                                  _handleCardLongPress(card.name);
+                                  setState(() {
+                                    selectedCardName = card.name;
+                                  });
+                                }
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: selectedCardName == card.name ? Colors.blue : Colors.transparent,
+                                    width: 3,
                                   ),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                            ],
-                          ),
-                        )
-                      : const Center(
-                          child: Text(
-                            "У вас нет карт",
-                            style: TextStyle(
-                              backgroundColor: Colors.white70,
+                                child: PlayerCard(
+                                  cardName: card.name,
+                                  cardType: card.type,
+                                  width: enlargedCardName != null ? 72 : 80,
+                                  height: enlargedCardName != null ? 108 : 120,
+                                  imageVariant: card.imageVariant,
+                                  // ... остальной код PlayerCard
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                      ],
+                    ),
+                  )
+                      : const Center(child: Text("Нет карт на руке")),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// --- Добавлено ---
+// Виджет для отображения информации об игроке
+class PlayerInfoWidget extends StatelessWidget {
+  final PlayerModel player;
+
+  const PlayerInfoWidget({Key? key, required this.player}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 50, //  Ширина виджета
+      height: 50, //  Высота виджета
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        shape: BoxShape.circle, // Круглая форма
+      ),
+      child: Center(
+        child: Text(
+          player.name.substring(player.name.length-1), // Отображаем первую букву имени
+          style: const TextStyle(fontSize: 16),
+        ),
       ),
     );
   }
