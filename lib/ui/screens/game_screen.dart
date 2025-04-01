@@ -81,6 +81,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
+
     return Positioned(
       left: x - 25,
       top: y - 25,
@@ -113,7 +114,7 @@ class _GameScreenState extends State<GameScreen> {
                     (index) => Padding(
                   padding: const EdgeInsets.only(left: 2.0), // Небольшой отступ между картами
                   child: Image.asset(
-                    'assets/cards/виски.png', // Путь к изображению рубашки карты
+                    'assets/cards/Событие.png', // Путь к изображению рубашки карты
                     width: 15,   // Ширина карты
                     height: 20,  // Высота карты
                   ),
@@ -128,17 +129,17 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double tableWidth = MediaQuery.of(context).size.width * 0.8;
-    final double tableHeight = MediaQuery.of(context).size.height * 0.6;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height * 0.8;
+    final double tableRadius = min(screenWidth, screenHeight) * 0.3;
     final double centerX = MediaQuery.of(context).size.width / 2;
-    final double centerY = MediaQuery.of(context).size.height * 0.3;
-    final double radius = min(tableWidth, tableHeight) / 2 * 0.8;
+    final double centerY = MediaQuery.of(context).size.height * 0.35;
     List<Offset> playerPositions = [];
 
     for (int i = 0; i < game.players.length; i++) {
       double angle = (2 * pi / game.players.length) * i - pi / 2;
-      double x = centerX + radius * cos(angle);
-      double y = centerY + radius * sin(angle);
+      double x = centerX + tableRadius * cos(angle);
+      double y = centerY + tableRadius * sin(angle);
       playerPositions.add(Offset(x, y));
     }
 
@@ -149,11 +150,11 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           Center(
             child: Container(
-              width: tableWidth,
-              height: tableHeight,
+              width: tableRadius * 2,  // Диаметр стола
+              height: tableRadius * 2, // Диаметр стола
               decoration: BoxDecoration(
-                color: Colors.brown, // Коричневый стол
-                borderRadius: BorderRadius.circular(tableWidth / 10), // Заглугленные углы
+                color: Colors.brown,  // Коричневый стол
+                shape: BoxShape.circle, // Круглая форма
               ),
             ),
           ),
@@ -189,7 +190,7 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
