@@ -1,4 +1,5 @@
 // game_manager.dart
+import 'game_start.dart';
 import 'dart:math';
 import '../models/player_model.dart';
 import '../models/card_model.dart';
@@ -13,43 +14,30 @@ class GameManager {
   bool isClockwise = true;
 
   GameManager(int playerCount, bool alien) : deck = Deck(playerCount: playerCount) {
-    // Создаем игроков
+// Создаем игроков
     for (int i = 1; i <= playerCount; i++) {
-      players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
+    players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
     }
 
-    // Используем GameSetup для настройки игры
-    _setupGame(alien);
-  }
-
-  void _setupGame(bool alien) {
-    // Раздаем начальные карты
-    for (var player in players) {
-      for (int i = 0; i < 4; i++) {
-        var card = deck.drawCard();
-        if (card != null) {
-          player.addCard(card);
-        }
-      }
+    GameStart gameStart = GameStart(players: players, deck: deck, playerCount: playerCount, alien_card: alien);
+    gameStart.setup();
     }
-
-    // Если есть карта Нечто, назначаем её случайному игроку
-    if (alien) {
-      PlayerModel alienPlayer = players[Random().nextInt(players.length)];
-      alienPlayer.role = Role.Thing;
-    }
-  }
 
   PlayerModel getCurrentPlayer() => players[currentPlayerIndex];
 
-  void nextTurn() {
-    currentPlayerIndex = getNextPlayerIndex();
-    while (!players[currentPlayerIndex].isAlive) {
+    void nextTurn() {
       currentPlayerIndex = getNextPlayerIndex();
+      while (!players[currentPlayerIndex].isAlive) {
+        currentPlayerIndex = getNextPlayerIndex();
+      }
     }
-  }
 
   CardModel check_target_hand(PlayerModel NextPlayer){
+    for (int i = 0; i < NextPlayer.hand.length; i++ )
+      if (NextPlayer.hand[i].name == "Нет уж, спасибо!"){
+        return NextPlayer.hand[i];
+      }
+
     for (int i = 0; i < NextPlayer.hand.length; i++ )
       if (NextPlayer.hand[i].name != "Нечто" || NextPlayer.hand[i].name != "Заражение!"){
         return NextPlayer.hand[i];
@@ -64,13 +52,27 @@ class GameManager {
      //   print("${Player.name} Берёт карту из колоды");
      // }
     PlayerModel NextPlayer = players[getNextPlayerIndex()];
-    for (int i = 0; i < Player.hand.length; i++ )
+    for (int i = 0; i < Player.hand.length; i++ ) {
       if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){
+        if(NextPlayer.isBarricaded || NextPlayer.isQuarantined) {
+          print("Обмен с игроком не возможен");
+          break;
+        }
         CardModel next_player_card = check_target_hand(NextPlayer);
-        exchangeCards(Player, NextPlayer, Player.hand[i], next_player_card);
-        print("${Player.name} обменивает карту ${Player.hand[i].name} с игроком ${NextPlayer.name} на карту ${NextPlayer.hand[i].name}");
-        break;
+        if (next_player_card.name != "Нет уж, спасибо!"){
+          playCard(NextPlayer, next_player_card, Player);
+          print("${NextPlayer.name} использует карту Нет уж, спасибо!");
+          break;
+        }
+        else {
+          exchangeCards(Player, NextPlayer, Player.hand[i], next_player_card);
+          print("${Player.name} обменивает карту ${Player.hand[i]
+              .name} с игроком ${NextPlayer.name} на карту ${NextPlayer.hand[i]
+              .name}");
+          break;
+        }
       }
+    }
   }
 
   void forceNextTurn() {

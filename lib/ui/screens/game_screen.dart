@@ -109,6 +109,12 @@ class _GameScreenState extends State<GameScreen> {
         onTap: () => _showPlayerCards(player),
         child: Column(
           children: [
+            Text(
+              "${player.name}"
+              "${player.isQuarantined ? 'Карантин' : ''} "
+              "${player.isBarricaded ? 'Забаррикадировано' : ''}",
+              style: const TextStyle(fontSize: 12, color: Colors.white),
+            ),
             Container(
               width: 50,
               height: 50,

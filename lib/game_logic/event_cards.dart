@@ -5,12 +5,24 @@ import 'game_manager.dart';
 import 'dart:math';
 
 class EventCards {
+  static bool check_on_fine(PlayerModel target){
+    for (int i = 0; i < target.hand.length; i++ ){
+      if (target.hand[i].name == "Никакого шашлыка") {
+        target.hand.remove(target.hand[i]);
+        return true;
+      }
+    }
+    return false;
+  }
+
   static void applyEffect(CardModel card, PlayerModel player, {PlayerModel? target, GameManager? gameManager}) {
     switch (card.name) {
       case "Огнемёт":
-        if (target != null && !target.isQuarantined) {
+        bool check = target != null ? check_on_fine(target) : false;
+        if (target != null && !target.isQuarantined && !check) {
           target.isAlive = false;
         }
+
         break;
       case "Карантин":
         if (target != null) {
