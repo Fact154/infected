@@ -229,8 +229,8 @@ class _GameScreenState extends State<GameScreen> {
                       setState(() {
                         selectedCardName = null;
                         exchangeManager.resetExchange();
-                        game.bot_playing();
                         game.nextTurn();
+                        game.bot_playing();
                       });
                     },
                     child: const Text("Следующий ход"),
