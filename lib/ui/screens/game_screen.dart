@@ -106,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isCurrentPlayer ? Colors.yellow : Colors.grey[300],
+                color: isCurrentPlayer ? const Color.fromRGBO(255, 235, 59, 1) : Colors.grey[300],
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isCurrentPlayer ? Colors.red : Colors.transparent,
@@ -145,14 +145,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // --- Добавлено ---
-  Widget buildPlayerWidget(PlayerModel player, double x, double y) {
-    return Positioned(
-      left: x,
-      top: y,
-      child: PlayerInfoWidget(player: player), // Используем новый виджет
-    );
-  }
   // --- Добавлено ---
   @override
   Widget build(BuildContext context) {

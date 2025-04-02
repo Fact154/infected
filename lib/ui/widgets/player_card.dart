@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import '../../models/card_type.dart';
 import '../utils/card_normalizer.dart'; // Импортируем нормализатор
 

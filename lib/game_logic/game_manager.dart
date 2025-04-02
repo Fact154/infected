@@ -1,10 +1,10 @@
 // game_manager.dart
-import 'dart:math';
 import '../models/player_model.dart';
 import '../models/card_model.dart';
 import '../models/card_type.dart';
 import 'deck.dart';
 import 'card_effects.dart';
+import 'game_start.dart';
 
 class GameManager {
   List<PlayerModel> players = [];
@@ -18,26 +18,8 @@ class GameManager {
       players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
     }
 
-    // Используем GameSetup для настройки игры
-    _setupGame(alien);
-  }
-
-  void _setupGame(bool alien) {
-    // Раздаем начальные карты
-    for (var player in players) {
-      for (int i = 0; i < 4; i++) {
-        var card = deck.drawCard();
-        if (card != null) {
-          player.addCard(card);
-        }
-      }
-    }
-
-    // Если есть карта Нечто, назначаем её случайному игроку
-    if (alien) {
-      PlayerModel alienPlayer = players[Random().nextInt(players.length)];
-      alienPlayer.role = Role.Thing;
-    }
+    GameStart gameStart = GameStart(players: players, deck: deck, playerCount: playerCount, alien_card: alien);
+    gameStart.setup();
   }
 
   PlayerModel getCurrentPlayer() => players[currentPlayerIndex];
@@ -69,9 +51,9 @@ class GameManager {
       CardEffects.applyEffect(card, player, gameManager: this);
     } else {
       player.addCard(card);
-      if (card.name == "Заражение!" && player.role == Role.Human) {
+      if (card.name == "Нечто" && player.role == Role.Human) {
         print("\n=== ИЗМЕНЕНИЕ СТАТУСА ИГРОКА ===");
-        print("${player.name} получил карту Заражение!");
+        print("${player.name} получил карту Нечто!");
         print("Старая роль: ${player.role}");
         player.role = Role.Infected;
         print("Новая роль: ${player.role}");

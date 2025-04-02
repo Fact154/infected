@@ -53,6 +53,9 @@ class GameStart {
       excludedCards.add("Нечто"); // Добавляем карту "Нечто", если alien == false
     }
 
+    // Удаляем карты паники из колоды перед раздачей
+    List<CardModel> panicCards = deck.cards.where((card) => excludedCards.contains(card.name)).toList();
+    deck.cards.removeWhere((card) => excludedCards.contains(card.name));
 
     // Перемешиваем колоду
     deck.shuffle();
@@ -62,21 +65,19 @@ class GameStart {
       int cardsToDraw = player.role == Role.Thing ? 3 : 4; // Ограничиваем количество карт для "Нечто"
 
       for (int j = 0; j < cardsToDraw; j++) {
-        CardModel? card;
-        do {
-          card = deck.drawCard(); // Берем карту из колоды
-          if (card == null) {
-            throw Exception("Колода пуста! Невозможно раздать карты.");
-          }
-        } while (excludedCards.contains(card.name)); // Проверяем, что карта не в списке исключений
+        CardModel? card = deck.drawCard(); // Берем карту из колоды
+        if (card == null) {
+          throw Exception("Колода пуста! Невозможно раздать карты.");
+        }
 
         player.addCard(card); // Выдаем карту игроку
         print("${player.name} получил карту: ${card.name}"); // Отладочный вывод
       }
     }
 
+
     // Выдаем дополнительную карту первому игроку, если у него меньше 5 карт
-    if (players[0].hand.length < 5) {
+    if (players[0].hand.length == 4) {
       CardModel? card;
       do {
         card = deck.drawCard();
@@ -84,12 +85,13 @@ class GameStart {
           throw Exception("Колода пуста! Невозможно выдать дополнительную карту.");
         }
       } while (excludedCards.contains(card.name));
-      
+
       players[0].addCard(card);
       print("${players[0].name} получил дополнительную карту: ${card.name}");
     }
-
-    // Перемешиваем колоду после раздачи
+        // Добавляем карты паники обратно в колоду и перемешиваем
+    deck.cards.addAll(panicCards);
     deck.shuffle();
+
   }
 }
