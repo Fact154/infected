@@ -67,7 +67,9 @@ class _GameScreenState extends State<GameScreen> {
   void _handleCardAction(String action) {
     if (selectedCardName == null) return;
 
+
     setState(() {
+
       if (action == 'discard') {
         var card = game.getCurrentPlayer().hand.firstWhere((c) => c.name == selectedCardName);
         game.getCurrentPlayer().hand.remove(card);
@@ -145,14 +147,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // --- Добавлено ---
-  Widget buildPlayerWidget(PlayerModel player, double x, double y) {
-    return Positioned(
-      left: x,
-      top: y,
-      child: PlayerInfoWidget(player: player), // Используем новый виджет
-    );
-  }
   // --- Добавлено ---
   @override
   Widget build(BuildContext context) {
@@ -235,6 +229,7 @@ class _GameScreenState extends State<GameScreen> {
                       setState(() {
                         selectedCardName = null;
                         exchangeManager.resetExchange();
+                        game.bot_playing();
                         game.nextTurn();
                       });
                     },

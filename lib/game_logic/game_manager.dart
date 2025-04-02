@@ -49,6 +49,30 @@ class GameManager {
     }
   }
 
+  CardModel check_target_hand(PlayerModel NextPlayer){
+    for (int i = 0; i < NextPlayer.hand.length; i++ )
+      if (NextPlayer.hand[i].name != "Нечто" || NextPlayer.hand[i].name != "Заражение!"){
+        return NextPlayer.hand[i];
+      }
+    return NextPlayer.hand[0];
+  }
+
+  void bot_playing(){
+    PlayerModel Player = players[currentPlayerIndex];
+    if (Player.hand.length < 5) {
+      drawAndProcessCard(Player);
+      print("${Player.name} Берёт карту из колоды");
+    }
+    PlayerModel NextPlayer = players[getNextPlayerIndex()];
+    for (int i = 0; i < Player.hand.length; i++ )
+      if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){
+        CardModel next_player_card = check_target_hand(NextPlayer);
+        exchangeCards(Player, NextPlayer, Player.hand[i], next_player_card);
+        print("${Player.name} обменивает карту ${Player.hand[i].name} с игроком ${NextPlayer.name} на карту ${NextPlayer.hand[i].name}");
+        break;
+      }
+  }
+
   void forceNextTurn() {
     currentPlayerIndex = getNextPlayerIndex();
     while (!players[currentPlayerIndex].isAlive) {
