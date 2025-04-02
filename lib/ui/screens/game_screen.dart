@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:infected/models/card_model.dart';
 import '../../game_logic/game_manager.dart';
 import '../widgets/player_card.dart';
 import '../../game_logic/exchange_manager.dart';
@@ -77,6 +78,10 @@ class _GameScreenState extends State<GameScreen> {
         game.deck.shuffle();
       } else if (action == 'play') {
         print('Игрок пытается сыграть карту: $selectedCardName');
+        var card = game.getCurrentPlayer().hand.firstWhere((c) => c.name == selectedCardName);
+        game.playCard(game.getCurrentPlayer(), card, game.players[game.getNextPlayerIndex()]);
+        game.getCurrentPlayer().hand.remove(card);
+        print('Игрок активирует карту: $selectedCardName');
       } else if (action == 'exchange') {
         exchangeManager.startExchange(selectedCardName!);
       }
@@ -229,8 +234,8 @@ class _GameScreenState extends State<GameScreen> {
                       setState(() {
                         selectedCardName = null;
                         exchangeManager.resetExchange();
-                        game.nextTurn();
                         game.bot_playing();
+                        game.nextTurn();
                       });
                     },
                     child: const Text("Следующий ход"),
@@ -451,6 +456,7 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 }
+
 
 // --- Добавлено ---
 // Виджет для отображения информации об игроке

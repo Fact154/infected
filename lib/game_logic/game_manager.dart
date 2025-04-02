@@ -59,10 +59,10 @@ class GameManager {
 
   void bot_playing(){
     PlayerModel Player = players[currentPlayerIndex];
-    // if (Player.hand.length < 5) {
-    //   drawAndProcessCard(Player);
-    //   print("${Player.name} Берёт карту из колоды");
-    // }
+     // if (Player.hand.length < 5) {
+     //   drawAndProcessCard(Player);
+     //   print("${Player.name} Берёт карту из колоды");
+     // }
     PlayerModel NextPlayer = players[getNextPlayerIndex()];
     for (int i = 0; i < Player.hand.length; i++ )
       if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){

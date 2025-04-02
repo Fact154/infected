@@ -34,6 +34,7 @@ class PlayerModel {
     hand.add(card);
   }
 
+
   @override
   String toString() => '$name ($role, ${hand.length} карт, ${isAlive ? "жив" : "мёртв"}, ${isQuarantined ? "в карантине" : ""}, ${isBarricaded ? "за баррикадой" : ""})';
 Map<String, dynamic> toJson() => {
