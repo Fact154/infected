@@ -28,6 +28,7 @@ class _GameScreenState extends State<GameScreen> {
   late ExchangeManager exchangeManager;
   String? enlargedCardName;
   String? selectedCardName;
+  bool? Change;
 
   @override
   void initState() {
@@ -88,6 +89,78 @@ class _GameScreenState extends State<GameScreen> {
       selectedCardName = null;
     });
   }
+
+  Future<void> bot_playing() async { // Добавляем async
+    PlayerModel Player = game.getCurrentPlayer();
+
+    if (Player.hand.length < 5) {
+       game.drawAndProcessCard(Player);
+       print("${Player.name} Берёт карту из колоды");
+    }
+    for (int i = 0; i < Player.hand.length; i++ ) {
+      if (Player.hand[i].name != "Нечто" && Player.hand[i].name != "Заражение!") {
+        print("${Player.name} сбрасывает карту ${Player.hand[i].name}");
+        selectedCardName = Player.hand[i].name;
+        _handleCardAction('discard'); // Убираем await, т.к. функция синхронная
+
+        break;
+      }
+    }
+    //  Пробуем обменяться только если есть что обменивать и сброс прошел успешно
+    if (Player.hand.isNotEmpty) {
+      if (exchangeManager.selectedCardName == null) {
+        for (int i = 0; i < Player.hand.length; i++) {
+          if (Player.hand[i].name != "Нечто" &&
+              Player.hand[i].name != "Заражение!") {
+            selectedCardName = Player.hand[i].name;
+            exchangeManager.startExchange(selectedCardName!);
+            print("${Player.name} пытается обменять карту ${Player.hand[i]
+                .name} ");
+            break;
+          }
+        }
+      }
+      else{
+        for (int i = 0; i < Player.hand.length; i++) {
+          if (Player.hand[i].name != "Нечто" &&
+              Player.hand[i].name != "Заражение!") {
+            selectedCardName = Player.hand[i].name;
+            exchangeManager.selectCardForExchange(selectedCardName!);
+            exchangeManager.completeExchange();
+            print("${Player.name} меняет карту ${Player.hand[i]
+                .name} ");
+            exchangeManager.resetExchange();
+            break;
+          }
+        }
+      }
+    }// Перемещаем nextTurn сюда
+  }
+
+  // void bot_playing(){
+  //   PlayerModel Player = game.getCurrentPlayer();
+  //   // if (Player.hand.length < 5) {
+  //   //    game.drawAndProcessCard(Player);
+  //   //    print("${Player.name} Берёт карту из колоды");
+  //   // }
+  //   for (int i = 0; i < Player.hand.length; i++ ) {
+  //     if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!") {
+  //       print("${Player.name} сбрасывает карту ${Player.hand[i].name}");
+  //       selectedCardName = Player.hand[i].name;
+  //       _handleCardAction('discard');
+  //       break;
+  //     }
+  //   }
+  //   for (int i = 0; i < Player.hand.length; i++ ) {
+  //     if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){
+  //       selectedCardName = Player.hand[i].name;
+  //       _handleCardAction('exchange');
+  //       print("${Player.name} пытается обменять карту ${Player.hand[i].name} с игроком ");
+  //       break;
+  //     }
+  //   }
+  //
+  // }
 
   Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
     bool canSeeRole = game.getCurrentPlayer().canSeePlayer(player);
@@ -240,11 +313,29 @@ class _GameScreenState extends State<GameScreen> {
                       setState(() {
                         selectedCardName = null;
                         exchangeManager.resetExchange();
-                        game.bot_playing();
+                        //game.bot_playing();
                         game.nextTurn();
                       });
                     },
                     child: const Text("Следующий ход"),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.red,
+                      textStyle: const TextStyle(fontSize: 18),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    ),
+                    onPressed: () {
+                      setState(() {
+
+                        bot_playing();
+
+                        //exchangeManager.resetExchange();
+                        //game.nextTurn();
+                      });
+                    },
+                    child: const Text("Автоход"),
                   ),
                 ],
               ),

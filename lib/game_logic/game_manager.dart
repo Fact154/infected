@@ -33,10 +33,10 @@ class GameManager {
     }
 
   CardModel check_target_hand(PlayerModel NextPlayer){
-    for (int i = 0; i < NextPlayer.hand.length; i++ )
-      if (NextPlayer.hand[i].name == "Нет уж, спасибо!"){
-        return NextPlayer.hand[i];
-      }
+    // for (int i = 0; i < NextPlayer.hand.length; i++ )
+    //   if (NextPlayer.hand[i].name == "Нет уж, спасибо!"){
+    //     return NextPlayer.hand[i];
+    //   }
 
     for (int i = 0; i < NextPlayer.hand.length; i++ )
       if (NextPlayer.hand[i].name != "Нечто" || NextPlayer.hand[i].name != "Заражение!"){
@@ -45,35 +45,35 @@ class GameManager {
     return NextPlayer.hand[0];
   }
 
-  void bot_playing(){
-    PlayerModel Player = players[currentPlayerIndex];
-     // if (Player.hand.length < 5) {
-     //   drawAndProcessCard(Player);
-     //   print("${Player.name} Берёт карту из колоды");
-     // }
-    PlayerModel NextPlayer = players[getNextPlayerIndex()];
-    for (int i = 0; i < Player.hand.length; i++ ) {
-      if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){
-        if(NextPlayer.isBarricaded || NextPlayer.isQuarantined) {
-          print("Обмен с игроком не возможен");
-          break;
-        }
-        CardModel next_player_card = check_target_hand(NextPlayer);
-        if (next_player_card.name != "Нет уж, спасибо!"){
-          playCard(NextPlayer, next_player_card, Player);
-          print("${NextPlayer.name} использует карту Нет уж, спасибо!");
-          break;
-        }
-        else {
-          exchangeCards(Player, NextPlayer, Player.hand[i], next_player_card);
-          print("${Player.name} обменивает карту ${Player.hand[i]
-              .name} с игроком ${NextPlayer.name} на карту ${NextPlayer.hand[i]
-              .name}");
-          break;
-        }
-      }
-    }
-  }
+  // void bot_playing(){
+  //   PlayerModel Player = players[currentPlayerIndex];
+  //    // if (Player.hand.length < 5) {
+  //    //   drawAndProcessCard(Player);
+  //    //   print("${Player.name} Берёт карту из колоды");
+  //    // }
+  //   PlayerModel NextPlayer = players[getNextPlayerIndex()];
+  //   for (int i = 0; i < Player.hand.length; i++ ) {
+  //     if (Player.hand[i].name != "Нечто" || Player.hand[i].name != "Заражение!"){
+  //       if(NextPlayer.isBarricaded || NextPlayer.isQuarantined) {
+  //         print("Обмен с игроком не возможен");
+  //         break;
+  //       }
+  //
+  //       // if (next_player_card.name != "Нет уж, спасибо!"){
+  //       //   playCard(NextPlayer, next_player_card, Player);
+  //       //   print("${NextPlayer.name} использует карту Нет уж, спасибо!");
+  //       //   break;
+  //       // }
+  //       else {
+  //         exchangeCards(Player, NextPlayer, Player.hand[i]);
+  //         print("${Player.name} обменивает карту ${Player.hand[i]
+  //             .name} с игроком ${NextPlayer.name} на карту ${NextPlayer.hand[i]
+  //             .name}");
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
 
   void forceNextTurn() {
     currentPlayerIndex = getNextPlayerIndex();
