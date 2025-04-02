@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/card_type.dart';
 import '../models/card_model.dart';
+import '../models/player_model.dart';
 
 class Deck {
   List<CardModel> cards = [];
@@ -182,6 +183,12 @@ class Deck {
   }
 
   void shuffle() => cards.shuffle(Random());
-  CardModel? drawCard() => cards.isEmpty ? null : cards.removeLast();
+  CardModel? drawCard(PlayerModel player) {
+    if (player.hand.length >= 5) {
+        print("Игрок не может взять больше карт, у него уже 5 или более карт.");
+        return null;
+    }
+    return cards.isEmpty ? null : cards.removeLast();
+  }
   void addCard(CardModel card) => cards.add(card);
 }

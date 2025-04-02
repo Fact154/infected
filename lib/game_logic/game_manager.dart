@@ -44,7 +44,7 @@ class GameManager {
   }
 
   void drawAndProcessCard(PlayerModel player) {
-    var card = deck.drawCard();
+    var card = deck.drawCard(player);
     if (card == null) return;
 
     if (card.type == CardType.Panic) {

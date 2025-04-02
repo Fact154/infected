@@ -41,7 +41,7 @@ class EventCards {
         if (gameManager != null) {
           List<CardModel> drawnCards = [];
           for (int i = 0; i < 3; i++) {
-            var newCard = gameManager.deck.drawCard();
+            var newCard = gameManager.deck.drawCard(player);
             if (newCard != null) {
               drawnCards.add(newCard);
             }
@@ -104,7 +104,7 @@ class EventCards {
       case "Мне и здесь неплохо":
         if (gameManager != null) {
           print("${player.name} отменяет эффект карты обмена местами.");
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             player.addCard(newCard);
           }
@@ -117,7 +117,7 @@ class EventCards {
             CardModel refusedCard = target.hand.last;
             print("${player.name} видит карту, от которой отказался: ${refusedCard.name}");
           }
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             player.addCard(newCard);
           }
@@ -126,7 +126,7 @@ class EventCards {
       case "Никакого шашлыка":
         if (gameManager != null) {
           print("${player.name} отменяет эффект карты 'Огнемёт'.");
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             player.addCard(newCard);
           }
@@ -146,7 +146,7 @@ class EventCards {
             nextPlayer.addCard(playerCard);
             print("${nextPlayer.name} меняется картами вместо ${player.name}.");
           }
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             player.addCard(newCard);
           }
@@ -155,7 +155,7 @@ class EventCards {
       case "Нет уж, спасибо!":
         if (gameManager != null) {
           print("${player.name} отказывается от обмена картами.");
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             player.addCard(newCard);
           }

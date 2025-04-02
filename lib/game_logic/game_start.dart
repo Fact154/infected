@@ -65,7 +65,7 @@ class GameStart {
       int cardsToDraw = player.role == Role.Thing ? 3 : 4; // Ограничиваем количество карт для "Нечто"
 
       for (int j = 0; j < cardsToDraw; j++) {
-        CardModel? card = deck.drawCard(); // Берем карту из колоды
+        CardModel? card = deck.drawCard(player);
         if (card == null) {
           throw Exception("Колода пуста! Невозможно раздать карты.");
         }
@@ -80,7 +80,7 @@ class GameStart {
     if (players[0].hand.length == 4) {
       CardModel? card;
       do {
-        card = deck.drawCard();
+        card = deck.drawCard(players[0]);
         if (card == null) {
           throw Exception("Колода пуста! Невозможно выдать дополнительную карту.");
         }
