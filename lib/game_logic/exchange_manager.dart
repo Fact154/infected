@@ -40,6 +40,47 @@ class ExchangeManager {
         return;
       }
     }
+
+    // Проверка на карту "Заражение!"
+    if (selectedCardName == "Заражение!") {
+      final currentPlayer = game.getCurrentPlayer();
+      // Проверяем, является ли инициатор Нечто или зараженным
+      if (currentPlayer.role != Role.Thing && currentPlayer.role != Role.Infected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Обмен невозможен! Только Нечто или зараженный игрок может передать карту "Заражение!"'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      
+      // Если инициатор заражен, проверяем, является ли цель Нечто
+      if (currentPlayer.role == Role.Infected && game.players[nextPlayerIndex].role != Role.Thing) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Обмен невозможен! Зараженный игрок может передать карту "Заражение!" только Нечто'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Проверяем количество карт заражения у цели
+      final targetPlayer = game.players[nextPlayerIndex];
+      if (targetPlayer.role == Role.Infected) {
+        int targetInfections = targetPlayer.hand.where((c) => c.name == "Заражение!").length;
+        if (targetInfections >= 3) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Обмен невозможен! У цели уже максимум карт "Заражение!"'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
+    }
     
     // Сохраняем информацию об обмене
     exchangeInitiator = game.getCurrentPlayer();

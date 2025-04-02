@@ -13,6 +13,19 @@ class PlayerModel {
 
   PlayerModel({required this.name, required this.role});
 
+  bool canSeePlayer(PlayerModel otherPlayer) {
+    // Если текущий игрок - Нечто, он видит всех зараженных
+    if (role == Role.Thing) {
+      return otherPlayer.role == Role.Infected;
+    }
+    // Если текущий игрок заражен, он видит только Нечто
+    if (role == Role.Infected) {
+      return otherPlayer.role == Role.Thing;
+    }
+    // Обычные игроки не видят особые роли других игроков
+    return false;
+  }
+
   void addCard(CardModel card) {
     if (card.name == "Заражение!" && role == Role.Infected) {
       int infectionCount = hand.where((c) => c.name == "Заражение!").length;

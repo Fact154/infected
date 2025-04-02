@@ -84,6 +84,8 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
+    bool canSeeRole = game.getCurrentPlayer().canSeePlayer(player);
+    bool isCurrentPlayerThing = game.getCurrentPlayer().role == Role.Thing;
 
     return Positioned(
       left: x - 25,
@@ -99,62 +101,20 @@ class _GameScreenState extends State<GameScreen> {
                 color: isCurrentPlayer ? Colors.yellow : Colors.grey[300],
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isCurrentPlayer ? Colors.red : Colors.transparent, // Подсветка обводкой
-                  width: 2.0, // Толщина обводки
+                  color: isCurrentPlayer ? Colors.red : Colors.transparent,
+                  width: 2.0,
                 )
               ),
               child: Center(
-                child: Text(
-                  player.name.substring(player.name.length - 1),
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            // --- Отображение карт ---
-            Row(
-              children: List.generate(
-                player.hand.length, // Отображаем количество карт
-                    (index) => Padding(
-                  padding: const EdgeInsets.only(left: 2.0), // Небольшой отступ между картами
-                  child: Image.asset(
-                    'assets/cards/Событие.png', // Путь к изображению рубашки карты
-                    width: 15,   // Ширина карты
-                    height: 20,  // Высота карты
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlayerWidget(PlayerModel player, double x, double y, bool isCurrentPlayer) {
-
-    return Positioned(
-      left: x - 25,
-      top: y - 25,
-      child: GestureDetector(
-        onTap: () => _showPlayerCards(player),
-        child: Column(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: isCurrentPlayer ? Colors.yellow : Colors.grey[300],
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isCurrentPlayer ? Colors.red : Colors.transparent, // Подсветка обводкой
-                  width: 2.0, // Толщина обводки
-                )
-              ),
-              child: Center(
-                child: Text(
-                  player.name.substring(player.name.length - 1),
-                  style: const TextStyle(fontSize: 16),
-                ),
+                child: canSeeRole
+                    ? const Icon(Icons.bug_report, color: Colors.red, size: 30) // Показываем паука для Нечто
+                    : (isCurrentPlayer || player == game.getCurrentPlayer()
+                        ? Text(
+                            player.name.substring(player.name.length - 1),
+                            style: const TextStyle(fontSize: 16),
+                          )
+                        : Container() // Пустой контейнер для остальных игроков
+                    ),
               ),
             ),
             // --- Отображение карт ---
@@ -178,7 +138,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   // --- Добавлено ---
-  Widget _buildPlayerWidget(PlayerModel player, double x, double y) {
+  Widget buildPlayerWidget(PlayerModel player, double x, double y) {
     return Positioned(
       left: x,
       top: y,
@@ -228,19 +188,12 @@ class _GameScreenState extends State<GameScreen> {
               Expanded( // Чтобы Stack занял все доступное пространство
                 child: Stack(
                   children: [
-                    // Здесь будет логика отрисовки стола (например, изображение)
-                    //  Можно добавить изображение стола здесь, если нужно
-                    // Пример:
-                    // Center(
-                    //   child: Image.asset('assets/table.png', width: tableWidth, height: tableHeight),
-                    // ),
-
-                    // Отображаем виджеты игроков
                     for (int i = 0; i < game.players.length; i++)
                       _buildPlayerWidget(
                         game.players[i],
-                        playerPositions[i].dx - 25, // Центрирование по X (учитывая ширину виджета)
-                        playerPositions[i].dy - 25, // Центрирование по Y (учитывая высоту виджета)
+                        playerPositions[i].dx - 25,
+                        playerPositions[i].dy - 25,
+                        game.players[i] == game.getCurrentPlayer(),
                       ),
                   ],
                 ),
@@ -281,43 +234,6 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ],
               ),
-            ],
-          ),
-          Stack(
-            children: [
-              // bool isCurrentPlayer
-              for (int i = 0; i < game.players.length; i++)
-                // if (game.players[i] == game.getCurrentPlayer()){
-                //   bool isCurrentPlayer = true
-                // }
-                //bool isCurrentPlayer = game.players[i] == game.getCurrentPlayer();
-                Positioned(
-                  left: playerPositions[i].dx - 25, // Центрирование
-                  top: playerPositions[i].dy - 25,  // Центрирование
-                  child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                  bool isCurrentPlayer = game.players[i] == game.getCurrentPlayer();
-                  return _buildPlayerWidget(game.players[i], playerPositions[i].dx, playerPositions[i].dy, isCurrentPlayer);
-                  },
-                  // child: GestureDetector(
-                  //   onTap: () => _showPlayerCards(game.players[i]),
-                  //   child: Container(
-                  //     width: 50,
-                  //     height: 50,
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.grey[300],
-                  //       shape: BoxShape.circle,
-                  //     ),
-                  //     child: Center(
-                  //       child: Text(
-                  //         game.players[i].name.substring(game.players[i].name.length - 1),
-                  //         style: const TextStyle(fontSize: 16),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  ),
-                ),
             ],
           ),
           if (enlargedCardName != null)

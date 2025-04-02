@@ -141,21 +141,6 @@ class GameManager {
       return;
     }
 
-    // Проверка на карту "Заражение!"
-    if (initiatorCard.name == "Заражение!") {
-      // Проверяем, является ли инициатор Нечто или зараженным
-      if (initiator.role != Role.Thing && initiator.role != Role.Infected) {
-        print("❌ Обмен невозможен! Только Нечто или зараженный игрок может передать карту 'Заражение!'");
-        return;
-      }
-      
-      // Если инициатор заражен, проверяем, является ли цель Нечто
-      if (initiator.role == Role.Infected && target.role != Role.Thing) {
-        print("❌ Обмен невозможен! Зараженный игрок может передать карту 'Заражение!' только Нечто");
-        return;
-      }
-    }
-
     if (!initiator.isAlive || !target.isAlive || initiator.isQuarantined || target.isQuarantined || initiator.isBarricaded || target.isBarricaded) {
       print("❌ Обмен невозможен! Проверьте состояние игроков");
       return;
@@ -163,14 +148,6 @@ class GameManager {
     if (!initiator.hand.contains(initiatorCard) || !target.hand.contains(targetCard)) {
       print("❌ Обмен невозможен! У игроков нет указанных карт");
       return;
-    }
-
-    if (initiatorCard.name == "Заражение!" && target.role == Role.Infected) {
-      int targetInfections = target.hand.where((c) => c.name == "Заражение!").length;
-      if (targetInfections >= 3) {
-        print("❌ Обмен невозможен! У цели уже максимум карт 'Заражение!'");
-        return;
-      }
     }
 
     initiator.hand.remove(initiatorCard);
