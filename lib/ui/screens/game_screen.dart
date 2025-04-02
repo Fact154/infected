@@ -7,7 +7,6 @@ import 'dart:math';
 import '../../models/player_model.dart';// Import для генерации случайных чисел
 import '../widgets/player_cards_dialog.dart';
 
-import 'dart:math';
 class GameScreen extends StatefulWidget {
   final bool alien;
   final int playerCount;
@@ -87,6 +86,15 @@ class _GameScreenState extends State<GameScreen> {
     bool canSeeRole = game.getCurrentPlayer().canSeePlayer(player);
     bool isCurrentPlayerThing = game.getCurrentPlayer().role == Role.Thing;
 
+    // Добавляем отладочную информацию
+    print("\n=== ОТОБРАЖЕНИЕ ИГРОКА ===");
+    print("Текущий игрок: ${game.getCurrentPlayer().name} (${game.getCurrentPlayer().role})");
+    print("Проверяемый игрок: ${player.name} (${player.role})");
+    print("Может видеть роль: $canSeeRole");
+    print("Текущий игрок - Нечто: $isCurrentPlayerThing");
+    print("Роль текущего игрока: ${game.getCurrentPlayer().role}");
+    print("==========================\n");
+
     return Positioned(
       left: x - 25,
       top: y - 25,
@@ -107,13 +115,13 @@ class _GameScreenState extends State<GameScreen> {
               ),
               child: Center(
                 child: canSeeRole
-                    ? const Icon(Icons.bug_report, color: Colors.red, size: 30) // Показываем паука для Нечто
+                    ? const Icon(Icons.bug_report, color: Colors.red, size: 30)
                     : (isCurrentPlayer || player == game.getCurrentPlayer()
                         ? Text(
                             player.name.substring(player.name.length - 1),
                             style: const TextStyle(fontSize: 16),
                           )
-                        : Container() // Пустой контейнер для остальных игроков
+                        : Container()
                     ),
               ),
             ),

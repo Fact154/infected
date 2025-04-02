@@ -57,7 +57,12 @@ class GameManager {
     } else {
       player.addCard(card);
       if (card.name == "Заражение!" && player.role == Role.Human) {
+        print("\n=== ИЗМЕНЕНИЕ СТАТУСА ИГРОКА ===");
+        print("${player.name} получил карту Заражение!");
+        print("Старая роль: ${player.role}");
         player.role = Role.Infected;
+        print("Новая роль: ${player.role}");
+        print("================================\n");
       }
     }
   }
