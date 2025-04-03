@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "397435425897",
+    "project_id": "infected-game-23680",
+    "storage_bucket": "infected-game-23680.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397435425897:android:89ba7fadb74a086cddbef8",
+        "android_client_info": {
+          "package_name": "com.example.infected"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2Mh066s8n2iFmSPp4US7LjdzeCCkO8wo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

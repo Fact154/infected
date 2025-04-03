@@ -1,4 +1,5 @@
 import 'card_model.dart';
+// import 'card_type.dart';
 
 enum Role { Human, Thing, Infected }
 
@@ -11,6 +12,19 @@ class PlayerModel {
   bool isAlive = true;
 
   PlayerModel({required this.name, required this.role});
+
+  bool canSeePlayer(PlayerModel otherPlayer) {
+    // Если текущий игрок - Нечто, он видит всех зараженных
+    if (role == Role.Thing) {
+      return otherPlayer.role == Role.Infected;
+    }
+    // Если текущий игрок заражен, он видит только Нечто
+    if (role == Role.Infected) {
+      return otherPlayer.role == Role.Thing;
+    }
+    // Обычные игроки не видят особые роли других игроков
+    return false;
+  }
 
   void addCard(CardModel card) {
     if (card.name == "Заражение!" && role == Role.Infected) {
@@ -36,10 +50,10 @@ Map<String, dynamic> toJson() => {
       name: json['name'],
       role: Role.values.firstWhere((r) => r.toString().split('.').last == json['role']),
     );
-    player.hand = (json['hand'] as List).map((c) => CardModel.fromJson(c)).toList();
-    player.isQuarantined = json['isQuarantined'];
-    player.isBarricaded = json['isBarricaded'];
-    player.isAlive = json['isAlive'];
+    player.hand = (json['hand'] as List)
+        .map((c) => CardModel.fromJson(c))
+        .toList()
+        .cast<CardModel>(); // Явное приведение типа
     return player;
   }
 }

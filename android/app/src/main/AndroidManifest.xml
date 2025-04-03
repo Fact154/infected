@@ -2,7 +2,10 @@
     <application
         android:label="infected"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
