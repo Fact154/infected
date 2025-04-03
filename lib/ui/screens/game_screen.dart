@@ -15,7 +15,6 @@ class GameScreen extends StatefulWidget {
     Key? key,
     required this.playerCount,
     required this.alien,
-
   }) : super(key: key);
 
   @override
@@ -175,13 +174,32 @@ class _GameScreenState extends State<GameScreen> {
       backgroundColor: Colors.green,
       body: Stack(
         children: [
-          Center(
+          // Устанавливаем фоновое изображение
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/game_desk.png"), // Путь к вашему фоновому изображению
+                fit: BoxFit.cover, // Растягиваем изображение на весь экран
+              ),
+            ),
+          ),
+          // Добавляем полупрозрачный белый круг с градиентом
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.19, // Отступ сверху (20% от высоты экрана)
+            left: MediaQuery.of(context).size.width / 2 - tableRadius*1.3, // Центрирование по горизонтали
             child: Container(
-              width: tableRadius * 2,  // Диаметр стола
-              height: tableRadius * 2, // Диаметр стола
+              width: tableRadius * 2.7, // Диаметр круга
+              height: tableRadius * 2.7, // Диаметр круга
               decoration: BoxDecoration(
-                color: Colors.brown,  // Коричневый стол
                 shape: BoxShape.circle, // Круглая форма
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.green.withOpacity(0.8), // Центр - полупрозрачный белый
+                    Colors.green.withOpacity(0.01), // Края - почти прозрачный
+                  ],
+                  stops: [0.0, 1.0], // Определяет плавность перехода
+                  radius: 1.0, // Радиус градиента
+                ),
               ),
             ),
           ),
@@ -199,7 +217,7 @@ class _GameScreenState extends State<GameScreen> {
                     for (int i = 0; i < game.players.length; i++)
                       _buildPlayerWidget(
                         game.players[i],
-                        playerPositions[i].dx - 25,
+                        playerPositions[i].dx,
                         playerPositions[i].dy - 25,
                         game.players[i] == game.getCurrentPlayer(),
                       ),

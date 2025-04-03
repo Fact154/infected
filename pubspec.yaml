@@ -22,5 +22,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/game_desk.png
     - assets/cards/
     - assets/

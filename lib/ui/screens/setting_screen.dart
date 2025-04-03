@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Container(  // Добавляем Container для фона
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.jpg"), // Путь к вашему фону
+            image: AssetImage("assets/wallpaper_infected.jpg"), // Путь к вашему фону
             fit: BoxFit.cover, // Как картинка должна отображаться
           ),
         ),
@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 children: <Widget>[
                   const Text(
-                    "Количество карт заражения:",
+                    "Количество игроков:",
                     style: TextStyle(color: Colors.white), // Красный цвет текста
                   ),
                   Expanded(
