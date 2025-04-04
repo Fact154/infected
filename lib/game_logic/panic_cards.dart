@@ -37,7 +37,7 @@ class PanicCards {
           }
         }
         for (int i = 0; i < 3; i++) {
-          var newCard = gameManager.deck.drawCard();
+          var newCard = gameManager.deck.drawCard(player);
           if (newCard != null) {
             currentPlayer.addCard(newCard);
           }
@@ -116,7 +116,7 @@ class PanicCards {
         var currentPlayer = gameManager.getCurrentPlayer();
         if (currentPlayer.hand.isNotEmpty) {
           CardModel cardToSwap = currentPlayer.hand.removeLast();
-          var topCard = gameManager.deck.drawCard();
+          var topCard = gameManager.deck.drawCard(player);
           if (topCard != null) {
             currentPlayer.addCard(topCard);
           }

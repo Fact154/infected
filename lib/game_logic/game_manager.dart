@@ -1,10 +1,11 @@
 // game_manager.dart
-import 'dart:math';
+
 import '../models/player_model.dart';
 import '../models/card_model.dart';
 import '../models/card_type.dart';
 import 'deck.dart';
 import 'card_effects.dart';
+import 'game_start.dart';
 
 class GameManager {
   List<PlayerModel> players = [];
@@ -18,28 +19,9 @@ class GameManager {
       players.add(PlayerModel(name: "Игрок $i", role: Role.Human));
     }
 
-    // Используем GameSetup для настройки игры
-    _setupGame(alien);
+    GameStart gameStart = GameStart(players: players, deck: deck, playerCount: playerCount, alien_card: alien);
+    gameStart.setup();
   }
-
-  void _setupGame(bool alien) {
-    // Раздаем начальные карты
-    for (var player in players) {
-      for (int i = 0; i < 4; i++) {
-        var card = deck.drawCard();
-        if (card != null) {
-          player.addCard(card);
-        }
-      }
-    }
-
-    // Если есть карта Нечто, назначаем её случайному игроку
-    if (alien) {
-      PlayerModel alienPlayer = players[Random().nextInt(players.length)];
-      alienPlayer.role = Role.Thing;
-    }
-  }
-
   PlayerModel getCurrentPlayer() => players[currentPlayerIndex];
 
   void nextTurn() {
@@ -62,7 +44,7 @@ class GameManager {
   }
 
   void drawAndProcessCard(PlayerModel player) {
-    var card = deck.drawCard();
+    var card = deck.drawCard(player);
     if (card == null) return;
 
     if (card.type == CardType.Panic) {
@@ -86,6 +68,7 @@ class GameManager {
     CardEffects.applyEffect(card, player, target: target, gameManager: this);
     player.hand.remove(card);
   }
+  
 
   bool checkGameEnd() {
     bool thingAlive = players.any((p) => p.role == Role.Thing && p.isAlive);
